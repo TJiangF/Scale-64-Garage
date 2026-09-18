@@ -4,3 +4,9 @@
 CONFIG_IDF_TARGET="esp32s3"
 CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y
 CONFIG_ESPTOOLPY_FLASHSIZE="8MB"
+
+# The motor task busy-waits between STEP edges on CPU1 to keep the pulse
+# train jitter free, so the CPU1 idle task intentionally never runs there.
+# Do not let the task watchdog report it; CPU0 idle is still monitored.
+CONFIG_ESP_TASK_WDT_CHECK_IDLE_TASK_CPU1=n
+

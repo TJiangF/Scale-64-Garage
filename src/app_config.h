@@ -78,7 +78,7 @@
 /* =========================================================================
  *  Motion parameters
  * ========================================================================= */
-#define MOTOR_STEP_INTERVAL_US  1000    /* 1 kHz nominal microstep rate      */
+#define MOTOR_STEP_INTERVAL_US  250     /* 4 kHz microstep rate (4x faster)  */
 #define MOTOR_STEP_PULSE_US     10      /* STEP high time                    */
 #define MOTOR_DIR_SETUP_US      5       /* DIR setup time before a STEP edge */
 
@@ -91,9 +91,9 @@
 #define MOTOR_FULL_STEPS_PER_REV    200
 #define MOTOR_MICROSTEPS            16
 #define MOTOR_MICROSTEPS_PER_REV    (MOTOR_FULL_STEPS_PER_REV * MOTOR_MICROSTEPS)
-#define MOTOR_REVS_PER_LEG          2
+#define MOTOR_REVS_PER_LEG          6
 #define MOTOR_STEPS_PER_LEG \
-    (MOTOR_MICROSTEPS_PER_REV * MOTOR_REVS_PER_LEG)  /* 6400 = 2 turns */
+    (MOTOR_MICROSTEPS_PER_REV * MOTOR_REVS_PER_LEG)  /* 19200 = 6 turns */
 
 #define MOTOR_START_DIR         MOTOR_DIR_FORWARD
 
