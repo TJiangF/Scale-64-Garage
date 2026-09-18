@@ -58,6 +58,12 @@
  * ========================================================================= */
 #define TMC3_PIN_STEP           48
 #define TMC3_PIN_DIR            47
+/*
+ * ENN is active LOW. Set this to the MCU GPIO if your PCB routes EN there,
+ * or leave -1 when EN is hard wired to GND on the board.
+ * NOTE: the module pulls EN up, so a floating EN means DISABLED.
+ */
+#define TMC3_PIN_EN             (-1)
 
 /* =========================================================================
  *  Reserved peripherals - defined for the final build, unused for now.

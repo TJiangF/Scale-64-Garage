@@ -100,8 +100,13 @@ static void motor_task(void *arg)
 
 esp_err_t motor_driver_init(void)
 {
+    uint64_t pin_mask = (1ULL << TMC3_PIN_STEP) | (1ULL << TMC3_PIN_DIR);
+#if TMC3_PIN_EN >= 0
+    pin_mask |= (1ULL << TMC3_PIN_EN);
+#endif
+
     const gpio_config_t cfg = {
-        .pin_bit_mask = (1ULL << TMC3_PIN_STEP) | (1ULL << TMC3_PIN_DIR),
+        .pin_bit_mask = pin_mask,
         .mode         = GPIO_MODE_OUTPUT,
         .pull_up_en   = GPIO_PULLUP_DISABLE,
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
@@ -117,8 +122,14 @@ esp_err_t motor_driver_init(void)
     gpio_set_level(TMC3_PIN_STEP, 0);
     motor_set_dir(MOTOR_START_DIR);
 
-    ESP_LOGI(TAG, "STEP=GPIO%d DIR=GPIO%d (STEP/DIR only, no UART)",
+#if TMC3_PIN_EN >= 0
+    gpio_set_level(TMC3_PIN_EN, 0);     /* ENN active low -> enable driver */
+    ESP_LOGI(TAG, "STEP=GPIO%d DIR=GPIO%d EN=GPIO%d (driven LOW, enabled)",
+             TMC3_PIN_STEP, TMC3_PIN_DIR, TMC3_PIN_EN);
+#else
+    ESP_LOGI(TAG, "STEP=GPIO%d DIR=GPIO%d EN not driven (must be tied to GND)",
              TMC3_PIN_STEP, TMC3_PIN_DIR);
+#endif
     return ESP_OK;
 }
 

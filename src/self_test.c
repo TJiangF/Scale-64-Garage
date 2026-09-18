@@ -47,6 +47,7 @@ static bool self_test_pins(void)
         { "LCD_CS",    LCD_PIN_CS },
         { "TMC3_STEP", TMC3_PIN_STEP },
         { "TMC3_DIR",  TMC3_PIN_DIR },
+        { "TMC3_EN",   TMC3_PIN_EN },
         { "TMC1_STEP", TMC1_PIN_STEP },
         { "TMC1_DIR",  TMC1_PIN_DIR },
         { "TMC2_STEP", TMC2_PIN_STEP },
