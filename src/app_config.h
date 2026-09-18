@@ -72,10 +72,23 @@
 /* =========================================================================
  *  Motion parameters
  * ========================================================================= */
-#define MOTOR_STEP_INTERVAL_US  1000    /* 1 kHz nominal step rate           */
+#define MOTOR_STEP_INTERVAL_US  1000    /* 1 kHz nominal microstep rate      */
 #define MOTOR_STEP_PULSE_US     10      /* STEP high time                    */
 #define MOTOR_DIR_SETUP_US      5       /* DIR setup time before a STEP edge */
-#define MOTOR_STEPS_PER_LEG     800     /* reverse after this many steps     */
+
+/*
+ * Leg length is derived from the mechanics instead of a magic number.
+ * 1.8 deg motor  -> 200 full steps / revolution
+ * TMC2208 MS1/MS2 -> 1/16 microstepping
+ * 200 * 16 = 3200 microsteps per motor revolution.
+ */
+#define MOTOR_FULL_STEPS_PER_REV    200
+#define MOTOR_MICROSTEPS            16
+#define MOTOR_MICROSTEPS_PER_REV    (MOTOR_FULL_STEPS_PER_REV * MOTOR_MICROSTEPS)
+#define MOTOR_REVS_PER_LEG          2
+#define MOTOR_STEPS_PER_LEG \
+    (MOTOR_MICROSTEPS_PER_REV * MOTOR_REVS_PER_LEG)  /* 6400 = 2 turns */
+
 #define MOTOR_START_DIR         MOTOR_DIR_FORWARD
 
 /* =========================================================================
