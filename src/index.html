@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scale 64 Garage - Setup</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 18px; font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+         background: #12151a; color: #e8ecf1; }
+  h1 { font-size: 1.25rem; margin: 0 0 4px; }
+  .sub { color: #8b98a8; font-size: .8rem; margin-bottom: 16px; }
+  .card { background: #1b2029; border: 1px solid #2a3242; border-radius: 12px;
+          padding: 14px; margin-bottom: 14px; }
+  .card h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em;
+             color: #8b98a8; margin: 0 0 10px; }
+  label { display: block; font-size: .8rem; color: #9fb0c3; margin: 10px 0 4px; }
+  input, select { width: 100%; padding: 11px; border-radius: 8px; border: 1px solid #354154;
+                  background: #0f1319; color: #e8ecf1; font-size: 1rem; }
+  button { margin-top: 14px; width: 100%; padding: 12px; border: 0; border-radius: 8px;
+           background: #2f7cf6; color: #fff; font-size: 1rem; font-weight: 600; }
+  button.ghost { background: #2a3242; color: #cfd9e6; font-weight: 500; }
+  button:active { opacity: .85; }
+  .row { display: flex; gap: 10px; }
+  .row > * { flex: 1; }
+  .kv { display: flex; justify-content: space-between; padding: 5px 0;
+        font-size: .9rem; border-bottom: 1px solid #232a36; }
+  .kv:last-child { border-bottom: 0; }
+  .kv span:first-child { color: #8b98a8; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+         margin-right: 6px; background: #e74c3c; vertical-align: middle; }
+  .dot.on { background: #2ecc71; }
+  .mono { font-family: ui-monospace, Menlo, monospace; }
+  #msg { min-height: 1.2em; font-size: .85rem; margin-top: 10px; color: #7fd18b; }
+  #msg.err { color: #ff7b7b; }
+</style>
+</head>
+<body>
+  <h1>Scale 64 Garage</h1>
+  <div class="sub">Wi-Fi configuration &amp; status</div>
+
+  <div class="card">
+    <h2>Status</h2>
+    <div class="kv"><span>Station</span><span id="st"><span class="dot"></span>unknown</span></div>
+    <div class="kv"><span>Network</span><span id="ssid" class="mono">-</span></div>
+    <div class="kv"><span>IP</span><span id="ip" class="mono">-</span></div>
+    <div class="kv"><span>RSSI</span><span id="rssi" class="mono">-</span></div>
+    <div class="kv"><span>Steps</span><span id="steps" class="mono">-</span></div>
+    <div class="kv"><span>Direction</span><span id="dir" class="mono">-</span></div>
+  </div>
+
+  <form class="card" id="form">
+    <h2>Wi-Fi</h2>
+    <label for="net">Network</label>
+    <select id="net"><option value="">-- tap Scan --</option></select>
+    <label for="ssidIn">SSID (edit to use a hidden network)</label>
+    <input id="ssidIn" name="ssid" autocomplete="off" placeholder="Wi-Fi name">
+    <label for="pass">Password</label>
+    <input id="pass" name="pass" type="password" autocomplete="off" placeholder="Wi-Fi password">
+    <div class="row">
+      <button type="button" class="ghost" id="scan">Scan</button>
+      <button type="submit" id="save">Save &amp; Connect</button>
+    </div>
+    <div id="msg"></div>
+  </form>
+
+<script>
+const $ = id => document.getElementById(id);
+const setMsg = (t, err) => { const m = $('msg'); m.textContent = t; m.className = err ? 'err' : ''; };
+
+async function refresh() {
+  try {
+    const r = await fetch('/status', { cache: 'no-store' });
+    const s = await r.json();
+    $('st').innerHTML = '<span class="dot' + (s.connected ? ' on' : '') + '"></span>' +
+                        (s.connected ? 'connected' : 'not connected');
+    $('ssid').textContent = s.ssid || '-';
+    $('ip').textContent   = s.ip || '-';
+    $('rssi').textContent = (s.rssi === 0 ? '-' : s.rssi + ' dBm');
+    $('steps').textContent = s.steps;
+    $('dir').textContent   = s.dir;
+  } catch (e) { /* device busy */ }
+}
+
+$('scan').onclick = async () => {
+  $('scan').disabled = true; setMsg('Scanning...');
+  try {
+    const r = await fetch('/scan', { cache: 'no-store' });
+    const d = await r.json();
+    const sel = $('net');
+    sel.innerHTML = '<option value="">-- select --</option>';
+    (d.aps || []).forEach(a => {
+      const o = document.createElement('option');
+      o.value = a.ssid;
+      o.textContent = a.ssid + '  (' + a.rssi + ' dBm' + (a.auth ? ', locked' : ', open') + ')';
+      sel.appendChild(o);
+    });
+    setMsg((d.aps || []).length + ' network(s) found');
+  } catch (e) { setMsg('Scan failed', true); }
+  $('scan').disabled = false;
+};
+
+$('net').onchange = () => { if ($('net').value) $('ssidIn').value = $('net').value; };
+
+$('form').onsubmit = async (ev) => {
+  ev.preventDefault();
+  const ssid = $('ssidIn').value.trim();
+  if (!ssid) { setMsg('Please choose or type an SSID', true); return; }
+  $('save').disabled = true; setMsg('Saving...');
+  try {
+    const body = 'ssid=' + encodeURIComponent(ssid) + '&pass=' + encodeURIComponent($('pass').value);
+    const r = await fetch('/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body
+    });
+    const d = await r.json();
+    if (d.ok) { setMsg('Saved. Connecting to "' + ssid + '"...'); setTimeout(refresh, 2500); }
+    else { setMsg(d.error || 'Save failed', true); }
+  } catch (e) { setMsg('Save failed', true); }
+  $('save').disabled = false;
+};
+
+refresh();
+setInterval(refresh, 2000);
+</script>
+</body>
+</html>

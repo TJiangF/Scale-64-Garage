@@ -12,3 +12,4 @@ dependencies.lock
 sdkconfig
 sdkconfig.old
 sdkconfig.esp32-s3-devkitm-1
+src/web_page.h

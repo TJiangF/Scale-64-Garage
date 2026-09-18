@@ -108,6 +108,27 @@
 #define MOTOR_BRINGUP_INTERVAL_US   50000   /* 20 Hz, 50% duty               */
 
 /* =========================================================================
+ *  Wi-Fi provisioning (SoftAP + built in web configuration page)
+ *
+ *  Boot behaviour: the ESP32 always raises its own access point and serves
+ *  a configuration page on http://192.168.4.1 . Join that AP from a phone,
+ *  pick / type the local Wi-Fi SSID and password, and the station connects
+ *  to your router while the setup AP stays available for later changes.
+ * ========================================================================= */
+#define PROV_AP_SSID_PREFIX     "SCALE64"   /* AP SSID = prefix + 2 MAC bytes */
+#define PROV_AP_PASSWORD        ""          /* "" leaves the setup AP open    */
+#define PROV_AP_CHANNEL         1
+#define PROV_AP_MAX_STA         4
+#define PROV_HTTP_PORT          80
+#define PROV_DNS_PORT           53
+#define PROV_STA_MAX_RETRY      8
+#define PROV_TASK_CORE          0
+#define PROV_HTTP_PRIORITY      5
+#define PROV_HTTP_STACK         8192
+#define PROV_DNS_PRIORITY       4
+#define PROV_DNS_STACK          4096
+
+/* =========================================================================
  *  FreeRTOS tasks
  * ========================================================================= */
 #if CONFIG_FREERTOS_UNICORE

@@ -1,0 +1,7 @@
+# Name,   Type, SubType, Offset,  Size, Flags
+# Scale_64_Garage - ESP32-S3 with 8 MB flash.
+# The app partition is bigger than the 1 MB default because Wi-Fi + the
+# HTTP server push the image well past 1 MB.
+nvs,      data, nvs,     0x9000,  0x6000,
+phy_init, data, phy,     0xf000,  0x1000,
+factory,  app,  factory, 0x10000, 4M,

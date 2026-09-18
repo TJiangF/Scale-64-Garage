@@ -9,6 +9,7 @@
 #include "display.h"
 #include "motor_driver.h"
 #include "self_test.h"
+#include "wifi_provision.h"
 
 #include "esp_err.h"
 #include "esp_log.h"
@@ -44,5 +45,11 @@ void app_main(void)
         ESP_LOGE(TAG, "lcd task start failed: %s", esp_err_to_name(err));
     }
 
-    ESP_LOGI(TAG, "running: motor pulses + lcd refresh");
+    /* wifi: SoftAP configuration page at http://192.168.4.1 */
+    err = wifi_provision_start();
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "wifi provisioning failed: %s", esp_err_to_name(err));
+    }
+
+    ESP_LOGI(TAG, "running: motor pulses + lcd refresh + wifi setup ap");
 }
