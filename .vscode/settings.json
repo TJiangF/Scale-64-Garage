@@ -1,0 +1,14 @@
+{
+  "idf.currentSetup": "/Users/tf/.espressif/v6.0.1/esp-idf",
+  "idf.customExtraVars": {
+    "OPENOCD_SCRIPTS": "/Users/tf/Document/esp-idf-tools/tools/openocd-esp32/v0.12.0-esp32-20240821/openocd-esp32/share/openocd/scripts",
+    "ESP_ROM_ELF_DIR": "/Users/tf/Document/esp-idf-tools/tools/esp-rom-elfs/20240305/",
+    "IDF_TARGET": "esp32s3"
+  },
+  "clangd.path": "/Users/tf/.espressif/tools/esp-clang/esp-20.1.1_20250829/esp-clang/bin/clangd",
+  "clangd.arguments": [
+    "--background-index",
+    "--query-driver=**",
+    "--compile-commands-dir=/Users/tf/Documents/PlatformIO/Projects/Scale_64_Garage/build"
+  ]
+}

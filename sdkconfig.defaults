@@ -1,0 +1,6 @@
+# Scale_64_Garage - ESP-IDF configuration defaults
+# Target: ESP32-S3-DevKitM-1 (8 MB flash)
+
+CONFIG_IDF_TARGET="esp32s3"
+CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y
+CONFIG_ESPTOOLPY_FLASHSIZE="8MB"
