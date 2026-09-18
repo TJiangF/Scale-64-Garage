@@ -29,6 +29,43 @@ static inline void motor_pulse_step(void)
     gpio_set_level(TMC3_PIN_STEP, 0);
 }
 
+#if MOTOR_BRINGUP_TEST
+/*
+ * Slow 50% duty STEP train, forward then back. This is purely a wiring /
+ * driver bring-up aid: a multimeter can show the STEP pin switching and the
+ * motor makes a few clearly visible full steps. It deliberately does not
+ * touch the shared step counter.
+ */
+static void motor_bringup_run(void)
+{
+    const uint32_t half_ms = (MOTOR_BRINGUP_INTERVAL_US / 2) / 1000;
+    const uint32_t half_ticks = (half_ms > 0) ? pdMS_TO_TICKS(half_ms) : 1;
+
+    ESP_LOGW(TAG, "BRING-UP: %u steps each way, %u us period (50%% duty)",
+             (unsigned)MOTOR_BRINGUP_STEPS, (unsigned)MOTOR_BRINGUP_INTERVAL_US);
+
+    for (int pass = 0; pass < 2; pass++) {
+        const motor_dir_t dir = (pass == 0) ? MOTOR_DIR_FORWARD : MOTOR_DIR_REVERSE;
+        motor_set_dir(dir);
+        ESP_LOGW(TAG, "BRING-UP pass %d dir=%s", pass,
+                 (dir == MOTOR_DIR_FORWARD) ? "FWD" : "REV");
+
+        for (uint32_t i = 0; i < MOTOR_BRINGUP_STEPS; i++) {
+            gpio_set_level(TMC3_PIN_STEP, 1);
+            vTaskDelay(half_ticks);
+            gpio_set_level(TMC3_PIN_STEP, 0);
+            vTaskDelay(half_ticks);
+
+            if ((i % 50) == 0 || (i + 1) == MOTOR_BRINGUP_STEPS) {
+                ESP_LOGI(TAG, "BRING-UP %u/%u",
+                         (unsigned)(i + 1), (unsigned)MOTOR_BRINGUP_STEPS);
+            }
+        }
+    }
+    ESP_LOGW(TAG, "BRING-UP done, entering normal operation");
+}
+#endif
+
 /*
  * Absolute time pacing. Long waits are handed over to the scheduler so the
  * LCD task (higher priority) gets its share of CPU, short waits are busy

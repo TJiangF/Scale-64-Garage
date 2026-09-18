@@ -56,8 +56,8 @@
 /* =========================================================================
  *  TMC2208 #3 - STEP / DIR only (standalone mode, no UART)
  * ========================================================================= */
-#define TMC3_PIN_STEP           48
-#define TMC3_PIN_DIR            47
+#define TMC3_PIN_STEP           47
+#define TMC3_PIN_DIR            21
 /*
  * ENN is active LOW. Set this to the MCU GPIO if your PCB routes EN there,
  * or leave -1 when EN is hard wired to GND on the board.
@@ -96,6 +96,16 @@
     (MOTOR_MICROSTEPS_PER_REV * MOTOR_REVS_PER_LEG)  /* 6400 = 2 turns */
 
 #define MOTOR_START_DIR         MOTOR_DIR_FORWARD
+
+/* =========================================================================
+ *  Bring-up diagnostic (compile time)
+ *  Runs a slow, 50% duty STEP train before normal operation so the STEP
+ *  waveform is visible on a multimeter (~1.65 V average) and single steps
+ *  can be seen on the shaft. Set MOTOR_BRINGUP_TEST to 0 for normal run.
+ * ========================================================================= */
+#define MOTOR_BRINGUP_TEST          0
+#define MOTOR_BRINGUP_STEPS         400     /* 25 full steps at 1/16         */
+#define MOTOR_BRINGUP_INTERVAL_US   50000   /* 20 Hz, 50% duty               */
 
 /* =========================================================================
  *  FreeRTOS tasks
